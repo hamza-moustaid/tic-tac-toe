@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TIC TAC TOE</title>
+	<style type="text/css">
+	.tb tr td{
+		width: 80px;
+		height: 80px;
+		border: 1px solid black;
+	}
+	#main{
+		position: absolute;
+		width: 350px;
+		height: 665px;
+		border: 1px solid black;
+	}
+	#tab{
+		position: absolute;
+		padding: 5px:;
+	}
+	</style>
+</head>
+<body onload="start();affichage();">
+	<div id="main">
+		<center>
+		<h3>Your Name : </h3>
+		<form name="f"><input type="text" name="nom" placeholder="Your Name..."></form><br/>
+		<h3>Upload your pictures</h3>
+			<img src="img/1.png" id="pic" width="30px" height="30px"><br/><br/>
+			<input type="file" id="file"><br/><br/>
+			<button id="play" onclick="affiche()">Jouer</button><br/><br/><br/>
+			<hr/>
+			<h3>Last 5 Scores</h3>
+			<div id="lastScore"></div>
+		</center>
+	</div>
+	<div id="tab"></div>
+</body>
+	<script type="text/javascript">
+	var x ="img/1.png";
+		var fileInput = document.getElementById('file');
+		fileInput.onchange = function(){
+			var reader = new FileReader();
+			reader.onload = function(){
+				if (fileInput.files[0].size/1024/1024 > 3){ 
+					alert('Image doit être inferieure à 3 MB');
+					x = document.getElementById('pic').src;
+				}
+				else {
+					document.getElementById('pic').src = "img/"+fileInput.files[0].name;
+					x = document.getElementById('pic').src;
+				}
+			};
+			reader.readAsDataURL(fileInput.files[0]);
+		};
+
+		function affiche(){
+			document.getElementById('tab').style.visibility = "visible";
+			document.getElementById('main').style.visibility = "hidden";
+		}
+
+		var o = "img/o.png";
+		var T = new Array(3);
+		document.getElementById('tab').style.visibility = "hidden";
+		function start(){
+			ch="";
+			ch += "<table class='tb'>";
+			for(var i = 0; i<3; i++) T[i] = new Array(3);
+			for(var i = 0; i<3; i++){
+				ch += "<tr>";
+				for(var j = 0; j<3; j++) ch += "<td id='"+i+","+j+"' onclick='jouer("+i+","+j+")'>&nbsp;</td>";
+				ch+="</tr>";
+			}
+			ch += "</table>";
+			for(var i = 0; i<3;i++){
+				for(var j = 0; j<3;j++) T[i][j] = 0;
+			}
+			document.getElementById('tab').innerHTML = "" + ch;
+		}
+		
+		var cp_joueur = 0;
+		var cp_cpu = 0;
+
+		function jouer(a,b){
+			cp_joueur++;
+			if (freeCase(a,b)==true) {
+				T[a][b] = "1";
+				document.getElementById(a+","+b).innerHTML = "<img src='"+x+"' width='30px' height='30px'>";
+				if (gagne(1)==1) {storageScore();
+					alert('tu as gagné');start();
+				}
+				else {
+					if (egalite()==true){ alert('Egalitee');start();storageScore();}
+					else {cpu();cp_cpu++;}
+				}
+				
+			}
+			else alert('Case Occupée');
+		}
+		function freeCase(x,y){
+			if (T[x][y] == 0) return true;
+			else return false;
+		}
+		function cpu(){
+			do{
+				var ll = Math.floor(Math.random()*3);
+				var cc = Math.floor(Math.random()*3);
+			}while(freeCase(ll,cc)==false)
+
+
+				T[ll][cc]="2";
+				document.getElementById(ll+","+cc).innerHTML = "<img src='"+o+"' width='30px' height='30px'>";
+				if (gagne(2)==2) {storageScore();
+					alert('jai gagné');start();
+				}
+				else {
+					if (egalite()==true){ alert('Egalitee');start();storageScore();}
+				}
+			}
+			if (T[ll][cc]!="2") {
+				var xx = Math.floor(Math.random()*3);
+				var yy = Math.floor(Math.random()*3);
+
+				if (freeCase(ll,cc)==true){
+					T[ll][cc]="2";
+					document.getElementById(ll+","+cc).innerHTML = "<img src='"+o+"' width='30px' height='30px'>";
+					if (gagne(2)==2) {storageScore();
+						alert('jai gagné');start();
+					}
+					else {
+						if (egalite()==true){ alert('Egalitee');start();storageScore();}
+					}
+				}
+			}
+		function gagne(g){
+			var gan = 0;
+			var chwin = "";
+			for(var i = 0; i<3; i++) chwin+="" + g;
+			var chl ="",chc ="",chd ="",chfd ="";
+			for(var i = 0; i<3; i++){
+				chl ="";chc="";
+				for(var j = 0; j<3; j++){
+					chl +="" + T[i][j];
+					chc +="" + T[j][i];
+				}
+				if (chl == chwin) gan = g;
+				if (chc == chwin) gan = g;
+				chd+="" + T[i][i];
+				chfd+="" + T[i][2-i];
+			}
+				if (chd == chwin) gan = g;
+				if (chfd == chwin) gan = g;
+
+				return gan;
+		}
+
+		function egalite(){
+			if (fin()==true && gagne(1)==0 && gagne(2)==0) return true;
+			else return false;
+		}
+
+		function fin(){
+			var b = true;
+			for(var i = 0; i<3; i++){
+				for(var j = 0; j<3; j++) if (T[i][j]==0) b = false;
+			} 
+		return b;
+		}
+
+		function storageScore(){
+			if (gagne(2)==2) cp_cpu++;
+			var name=f.nom.value;[]
+			var D=new Date();
+			var date=""+ D.getDate()+"-"+D.getMonth()+ "-" +D.getFullYear();
+  		 	var Db= openDatabase('Db','1.0','DB',2*1024*1024);
+
+		    Db.transaction( function(T){
+		     T.executeSql("CREATE TABLE IF NOT EXISTS Resultats (nom,img_jr,score_jr,score_cpu,date)");
+		     T.executeSql("INSERT INTO Resultats VALUES('"+name+"','"+x+"','"+cp_joueur+"','"+cp_cpu+"','"+date+"')");
+		    });
+		}
+		function affichage(){
+			var msg="";
+			var Db= openDatabase('Db','1.0','DB',2*1024*1024);
+		    Db.transaction(function(T){
+		      T.executeSql('SELECT * FROM Resultats order by rowid DESC LIMIT 5',[],function(T,results){
+		        var rw=results.rows.length;
+		        msg+="<table style='border:1px solid black;'>";
+		        msg+="<tr>";
+		        msg+="<th style='border:1px solid black;'>Name </th><th style='border:1px solid black;'>Player </th><th style='border:1px solid black;'>CPU </th><th style='border:1px solid black;'>Score </th>  <th style='border:1px solid black;'> Date </th>";
+		        msg+="</tr>";
+		        for(var i=0;i<rw;i++){
+		            msg+= "<tr>";
+		            msg+= "<td style='border:1px solid black;'>"+results.rows.item(i).nom +" </td>";
+		            msg+= "<td style='border:1px solid black;'><img src='"+results.rows.item(i).img_jr+"' width='30px' height='30px'></td>";
+		            msg+= "<td style='border:1px solid black;'><img src='"+o+"' width='30px' height='30px'></td>";
+		            msg+= "<td style='border:1px solid black;'>"+results.rows.item(i).score_jr+" / "+results.rows.item(i).score_cpu+"</td>";
+		            msg+= "<td style='border:1px solid black;'> "+results.rows.item(i).date +" </td> ";
+		            msg+="</tr>";
+		        } 
+				msg+="</table>";
+		            document.getElementById('lastScore').innerHTML+=msg;
+		       },null);
+	      });
+		}
+ 		
+ 
+	</script>
+</html>
